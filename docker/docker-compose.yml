@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  application:
+    image: 'openjdk:21-jdk-slim'
+    container_name: recruitment-task-application
+    environment:
+      database_url: jdbc:postgresql://database:5432/recruitment-task
+      database_username: postgres
+      database_password: postgres
+    volumes:
+      - ./../:/application
+    working_dir: /application
+    command: ./mvnw spring-boot:run
+    depends_on:
+      - database
+    ports:
+      - "8080:8080"
+  database:
+    image: 'postgres:13'
+    container_name: recruitment-task-database
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: recruitment-task
+    volumes:
+      - ./init-db:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
