@@ -1,0 +1,23 @@
+server:
+  port: 8080
+spring:
+  datasource:
+    username: ${database_username}
+    password: ${database_password}
+    url: ${database_url}
+    hikari:
+      username: ${database_username}
+      password: ${database_password}
+      jdbc-url: ${database_url}
+      connection-timeout: 10000
+      maximum-pool-size: 35
+      minimum-idle: 10
+  liquibase:
+    enabled: false
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
