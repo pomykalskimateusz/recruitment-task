@@ -8,10 +8,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.pomykalskimateusz.recruitmenttask.exception.BadRequestException;
 import pl.pomykalskimateusz.recruitmenttask.localization.LocalizationService;
-import pl.pomykalskimateusz.recruitmenttask.model.*;
+import pl.pomykalskimateusz.recruitmenttask.model.BasicCouponData;
+import pl.pomykalskimateusz.recruitmenttask.model.CouponData;
+import pl.pomykalskimateusz.recruitmenttask.model.CreateCouponBody;
 import pl.pomykalskimateusz.recruitmenttask.utils.DistributedDatabaseLock;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
@@ -30,7 +34,7 @@ public class CouponService {
 
   @Transactional
   public Optional<BasicCouponData> createCoupon(CreateCouponBody createCouponBody) {
-    couponValidateService.validateCreateCouponBody(createCouponBody);
+    couponValidateService.validateCreateCoupon(createCouponBody);
     DistributedDatabaseLock.lockCouponCreation(dslContext, createCouponBody.getCode());
 
     if(couponReadRepository.existsByCode(createCouponBody.getCode())) {
@@ -48,6 +52,7 @@ public class CouponService {
     }
 
     DistributedDatabaseLock.lockCouponRegistration(dslContext, code);
+
     couponWriteRepository.insertCouponUsage(userId, fetchCouponUsageByCode(userId, code, optionalCountryCode.get()).couponId());
   }
 
@@ -57,18 +62,8 @@ public class CouponService {
       throw new BadRequestException(String.format("Not found coupon code: %s", code));       //todo replace with NotFoundException
     }
 
-    var couponUsage = optionalCouponUsage.get();
+    couponValidateService.validateCouponUsage(optionalCouponUsage.get(), code, countryCode);
 
-    if(!countryCode.equals(couponUsage.country())) {
-      throw new BadRequestException(String.format("Not found coupon code: %s for country: %s", code, countryCode));
-    }
-    if(couponUsage.usageLimit() == couponUsage.totalUsage()) {
-      throw new BadRequestException(String.format("Code not available. Usage limit exceeded for code: %s", code));       //todo replace with NotFoundException
-    }
-    if(couponUsage.userUsage() > 0) {
-      throw new BadRequestException(String.format("User usage limit exceeded for code: %s and country: %s", code, countryCode));       //todo replace with NotFoundException
-    }
-
-    return couponUsage;
+    return optionalCouponUsage.get();
   }
 }

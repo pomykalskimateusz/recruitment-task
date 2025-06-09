@@ -18,12 +18,24 @@ import java.util.stream.Collectors;
 public class CouponValidateService {
   static Set<String> ISO_COUNTRIES = Arrays.stream(Locale.getISOCountries()).collect(Collectors.toSet());
 
-  public void validateCreateCouponBody(CreateCouponBody createCouponBody) {
+  public void validateCreateCoupon(CreateCouponBody createCouponBody) {
     if(isCountryCodeNotValid(createCouponBody.getCountryCode())) {
       throw new BadRequestException(String.format("Invalid country code: %s", createCouponBody.getCountryCode()));
     }
     if(isUsageLimitNotValid(createCouponBody.getUsageLimit())) {
       throw new BadRequestException(String.format("Invalid usage limit: %s, value should be positive", createCouponBody.getUsageLimit()));
+    }
+  }
+
+  public void validateCouponUsage(CouponReadRepository.CouponUsageData couponUsage, String code, String countryCode) {
+    if(!countryCode.equals(couponUsage.country())) {
+      throw new BadRequestException(String.format("Not found coupon code: %s for country: %s", code, countryCode));
+    }
+    if(couponUsage.usageLimit() == couponUsage.totalUsage()) {
+      throw new BadRequestException(String.format("Code not available. Usage limit exceeded for code: %s", code));       //todo replace with NotFoundException
+    }
+    if(couponUsage.userUsage() > 0) {
+      throw new BadRequestException(String.format("User usage limit exceeded for code: %s and country: %s", code, countryCode));       //todo replace with NotFoundException
     }
   }
 

@@ -24,7 +24,7 @@ import static pl.pomykalskimateusz.recruitmenttask.jooq.entity.tables.CouponUsag
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @RequiredArgsConstructor
 public class CouponReadRepository {
-  static Field<Integer> CURRENT_USAGE_FIELD = DSL.field("has_assortment", Integer.class);
+  static Field<Integer> CURRENT_USAGE_FIELD = DSL.field("current_usage", Integer.class);
   static Field<Boolean> COUPON_EXISTS_FIELD = DSL.field("exists", Boolean.class);
   static Field<Integer> COUPON_TOTAL_USAGE_FIELD = DSL.field("total_usage", Integer.class);
   static Field<Integer> COUPON_USER_USAGE_FIELD = DSL.field("user_usage", Integer.class);
