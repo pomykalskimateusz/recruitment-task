@@ -1,0 +1,92 @@
+openapi: 3.0.1
+info:
+  title: Coupons API
+  version: "1.0.0"
+
+paths:
+  /coupons:
+    post:
+      operationId: createCoupon
+      description: Endpoint for creating new coupon
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: CreateCouponBody
+              type: object
+              properties:
+                code:
+                  type: string
+                usageLimit:
+                  type: integer
+                countryCode:
+                  type: string
+                  maxLength: 2
+      responses:
+        '200':
+          description: Created coupon response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Coupon'
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /coupons/{code}/register:
+    post:
+      operationId: registerUserCoupon
+      description: Endpoint for registering user coupons
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: RegisterCouponBody
+              type: object
+              properties:
+                userId:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Registered coupon response
+          content:
+            application/json:
+              schema:
+                title: RegisterCouponResponse
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  coupon:
+                    $ref: '#/components/schemas/Coupon'
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+components:
+  schemas:
+    Coupon:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        createDate:
+          type: string
+          format: date
+        usageLimit:
+          type: integer
+        currentUsage:
+          type: integer
+        countryCode:
+          type: string
+  responses:
+    Ok:
+      description: OK
+    NotFound:
+      description: Resource not found
+    InternalServerError:
+      description: An unexpected error occurred on the server
+    Conflict:
+      description: Conflict with the current state of the target resource
