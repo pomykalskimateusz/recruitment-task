@@ -5,6 +5,18 @@ info:
 
 paths:
   /coupons:
+    get:
+      operationId: getAllCoupons
+      description: Endpoint for fetching all coupons without pagination
+      responses:
+        '200':
+          description: Created coupon response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CouponData'
     post:
       operationId: createCoupon
       description: Endpoint for creating new coupon
@@ -17,10 +29,13 @@ paths:
               properties:
                 code:
                   type: string
+                  minLength: 1
                 usageLimit:
                   type: integer
+                  minimum: 1
                 countryCode:
                   type: string
+                  minLength: 1
                   maxLength: 2
       responses:
         '200':
@@ -28,13 +43,21 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Coupon'
+                $ref: '#/components/schemas/BasicCouponData'
         '500':
           $ref: "#/components/responses/InternalServerError"
+        '400':
+          $ref: '#/components/responses/BadRequest'
   /coupons/{code}/register:
     post:
       operationId: registerUserCoupon
       description: Endpoint for registering user coupons
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
       requestBody:
         content:
           application/json:
@@ -48,23 +71,13 @@ paths:
       responses:
         '200':
           description: Registered coupon response
-          content:
-            application/json:
-              schema:
-                title: RegisterCouponResponse
-                type: object
-                properties:
-                  id:
-                    type: string
-                    format: uuid
-                  coupon:
-                    $ref: '#/components/schemas/Coupon'
         '500':
           $ref: "#/components/responses/InternalServerError"
-
+        '400':
+          $ref: '#/components/responses/BadRequest'
 components:
   schemas:
-    Coupon:
+    BasicCouponData:
       type: object
       properties:
         id:
@@ -74,7 +87,22 @@ components:
           type: string
         createDate:
           type: string
-          format: date
+          format: date-time
+        usageLimit:
+          type: integer
+        countryCode:
+          type: string
+    CouponData:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        createDate:
+          type: string
+          format: date-time
         usageLimit:
           type: integer
         currentUsage:
@@ -90,3 +118,5 @@ components:
       description: An unexpected error occurred on the server
     Conflict:
       description: Conflict with the current state of the target resource
+    BadRequest:
+      description: Bad request body

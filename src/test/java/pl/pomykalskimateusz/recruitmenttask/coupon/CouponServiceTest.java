@@ -15,9 +15,4 @@ public class CouponServiceTest extends DatabaseContainer {
   void afterEach() {
     super.cleanDatabase("public", false);
   }
-
-  @Test
-  void shouldReturnTrue() {
-    assertTrue(couponService.dummyMethod());
-  }
 }
