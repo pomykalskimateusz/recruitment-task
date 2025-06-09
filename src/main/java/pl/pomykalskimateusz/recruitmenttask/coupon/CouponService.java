@@ -18,13 +18,14 @@ import java.util.*;
 @RequiredArgsConstructor
 public class CouponService {
   DSLContext dslContext;
-  CouponRepository couponRepository;
+  CouponWriteRepository couponWriteRepository;
+  CouponReadRepository couponReadRepository;
   CouponValidateService couponValidateService;
   LocalizationService localizationService;
 
   @Transactional
   public List<CouponData> fetchCoupons() {
-    return couponRepository.findAll();
+    return couponReadRepository.findAll();
   }
 
   @Transactional
@@ -32,11 +33,11 @@ public class CouponService {
     couponValidateService.validateCreateCouponBody(createCouponBody);
     DistributedDatabaseLock.lockCouponCreation(dslContext, createCouponBody.getCode());
 
-    if(couponRepository.existsByCode(createCouponBody.getCode())) {
+    if(couponReadRepository.existsByCode(createCouponBody.getCode())) {
       throw new BadRequestException(String.format("Duplicated coupon code found: %s", createCouponBody.getCode()));
     }
 
-    return couponRepository.insert(createCouponBody);
+    return couponWriteRepository.insert(createCouponBody);
   }
 
   @Transactional
@@ -47,11 +48,11 @@ public class CouponService {
     }
 
     DistributedDatabaseLock.lockCouponRegistration(dslContext, code);
-    couponRepository.insertCouponUsage(userId, fetchCouponUsageByCode(userId, code, optionalCountryCode.get()).couponId());
+    couponWriteRepository.insertCouponUsage(userId, fetchCouponUsageByCode(userId, code, optionalCountryCode.get()).couponId());
   }
 
-  private CouponRepository.CouponUsageData fetchCouponUsageByCode(UUID userId, String code, String countryCode) {
-    var optionalCouponUsage = couponRepository.findCouponUsageByCode(code, userId);
+  private CouponReadRepository.CouponUsageData fetchCouponUsageByCode(UUID userId, String code, String countryCode) {
+    var optionalCouponUsage = couponReadRepository.findCouponUsageByCode(code, userId);
     if(optionalCouponUsage.isEmpty()) {
       throw new BadRequestException(String.format("Not found coupon code: %s", code));       //todo replace with NotFoundException
     }
