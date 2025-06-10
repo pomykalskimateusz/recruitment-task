@@ -11,6 +11,7 @@ import pl.pomykalskimateusz.recruitmenttask.model.CreateCouponBody;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,7 +21,7 @@ public class CouponValidateService {
   static Set<String> ISO_COUNTRIES = Arrays.stream(Locale.getISOCountries()).collect(Collectors.toSet());
 
   public void validateCreateCoupon(CreateCouponBody createCouponBody) {
-    if(isCodeNotValid(createCouponBody.getCode())) {
+    if(isEmptyOrNull(createCouponBody.getCode())) {
       throw new BadRequestException("Invalid code: cannot be empty/null");
     }
     if(isCountryCodeNotValid(createCouponBody.getCountryCode())) {
@@ -28,6 +29,15 @@ public class CouponValidateService {
     }
     if(isUsageLimitNotValid(createCouponBody.getUsageLimit())) {
       throw new BadRequestException(String.format("Invalid usage limit: %s, value should be positive", createCouponBody.getUsageLimit()));
+    }
+  }
+
+  public void validateRegisterCoupon(UUID userId, String code) {
+    if(isUserIdNotValid(userId)) {
+      throw new BadRequestException("Invalid user id");
+    }
+    if(isEmptyOrNull(code)) {
+      throw new BadRequestException("Invalid code: cannot be empty/null");
     }
   }
 
@@ -43,16 +53,16 @@ public class CouponValidateService {
     }
   }
 
-  private boolean isCodeNotValid(String code) {
-    return isEmptyOrNull(code);
-  }
-
   private boolean isCountryCodeNotValid(String countryCode) {
     return isEmptyOrNull(countryCode) || !ISO_COUNTRIES.contains(countryCode.toUpperCase());
   }
 
   private boolean isUsageLimitNotValid(Integer usageLimit) {
     return usageLimit == null || usageLimit <= 0;
+  }
+
+  private boolean isUserIdNotValid(UUID userId) {
+    return userId == null;
   }
 
   private boolean isEmptyOrNull(String value) {

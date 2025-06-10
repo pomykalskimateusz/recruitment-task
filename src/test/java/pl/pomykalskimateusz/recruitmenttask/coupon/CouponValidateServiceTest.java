@@ -4,8 +4,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import pl.pomykalskimateusz.recruitmenttask.exception.BadRequestException;
+import pl.pomykalskimateusz.recruitmenttask.exception.ResourceNotFoundException;
 import pl.pomykalskimateusz.recruitmenttask.model.CreateCouponBody;
 
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -63,6 +65,62 @@ public class CouponValidateServiceTest {
 
     // WHEN validating body with invalid usage limit THEN BadRequestException should be thrown
     assertDoesNotThrow(() -> couponValidateService.validateCreateCoupon(createCouponBody));
+  }
+
+  @ParameterizedTest
+  @MethodSource("invalidCodeValues")
+  void shouldThrowExceptionForInvalidCodeInRegisterCoupon(String code) {
+    // GIVEN user-id and invalid code
+    var userId = UUID.randomUUID();
+
+    // WHEN validating register coupon parameters with invalid code THEN BadRequestException should be thrown
+    assertThrows(BadRequestException.class, () -> couponValidateService.validateRegisterCoupon(userId, code));
+  }
+
+
+  @Test
+  void shouldThrowExceptionForMissingUserIdInRegisterCoupon() {
+    // GIVEN missing user-id and valid code
+    var code = "test";
+
+    // WHEN validating register coupon parameters with invalid code THEN BadRequestException should be thrown
+    assertThrows(BadRequestException.class, () -> couponValidateService.validateRegisterCoupon(null, code));
+  }
+
+  @Test
+  void shouldThrowExceptionForNotEqualCountryCodeInCouponUsage() {
+    // GIVEN coupon usage data and invalid country code
+    var couponUsage = new CouponReadRepository.CouponUsageData(UUID.randomUUID(), "PL", true, 10, 5, 0);
+
+    // WHEN validating coupon usage with invalid country code THEN ResourceNotFoundException should be thrown
+    assertThrows(ResourceNotFoundException.class, () -> couponValidateService.validateCouponUsage(couponUsage, "test", "US"));
+  }
+
+  @Test
+  void shouldThrowExceptionForExceededUsageLimitInCouponUsage() {
+    // GIVEN coupon usage data with exceeded usage limit
+    var couponUsage = new CouponReadRepository.CouponUsageData(UUID.randomUUID(), "PL", true, 10, 10, 0);
+
+    // WHEN validating coupon usage with exceeded usage limit THEN BadRequestException should be thrown
+    assertThrows(BadRequestException.class, () -> couponValidateService.validateCouponUsage(couponUsage, "test", "PL"));
+  }
+
+  @Test
+  void shouldThrowExceptionForExceededUsageLimitByUserInCouponUsage() {
+    // GIVEN coupon usage data with exceeded usage limit by user
+    var couponUsage = new CouponReadRepository.CouponUsageData(UUID.randomUUID(), "PL", true, 10, 5, 1);
+
+    // WHEN validating coupon usage with exceeded usage limit by user THEN BadRequestException should be thrown
+    assertThrows(BadRequestException.class, () -> couponValidateService.validateCouponUsage(couponUsage, "test", "PL"));
+  }
+
+  @Test
+  void shouldNotThrowExceptionForValidCouponUsage() {
+    // GIVEN coupon usage data with exceeded usage limit by user
+    var couponUsage = new CouponReadRepository.CouponUsageData(UUID.randomUUID(), "PL", true, 10, 5, 0);
+
+    // WHEN validating coupon usage with exceeded usage limit by user THEN BadRequestException should be thrown
+    assertDoesNotThrow(() -> couponValidateService.validateCouponUsage(couponUsage, "test", "PL"));
   }
 
   private static Stream<Integer> invalidUsageLimitValues() {

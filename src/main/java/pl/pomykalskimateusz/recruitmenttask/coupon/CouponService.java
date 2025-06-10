@@ -47,6 +47,8 @@ public class CouponService {
 
   @Transactional
   public void registerCoupon(UUID userId, String code, String ipAddress) {
+    couponValidateService.validateRegisterCoupon(userId, code);
+
     var optionalCountryCode = localizationService.getCountryCodeByIp(ipAddress);
     if(optionalCountryCode.isEmpty()) {
       throw new ResourceNotFoundException(String.format("Not found country code for ip address: %s", ipAddress));
