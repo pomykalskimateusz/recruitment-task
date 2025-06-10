@@ -7,6 +7,7 @@ import org.jooq.DSLContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.pomykalskimateusz.recruitmenttask.exception.BadRequestException;
+import pl.pomykalskimateusz.recruitmenttask.exception.ResourceNotFoundException;
 import pl.pomykalskimateusz.recruitmenttask.localization.LocalizationService;
 import pl.pomykalskimateusz.recruitmenttask.model.BasicCouponData;
 import pl.pomykalskimateusz.recruitmenttask.model.CouponData;
@@ -48,7 +49,7 @@ public class CouponService {
   public void registerCoupon(UUID userId, String code, String ipAddress) {
     var optionalCountryCode = localizationService.getCountryCodeByIp(ipAddress);
     if(optionalCountryCode.isEmpty()) {
-      throw new BadRequestException(String.format("Not found coupon code: %s", code));
+      throw new ResourceNotFoundException(String.format("Not found country code for ip address: %s", ipAddress));
     }
 
     DistributedDatabaseLock.lockCouponRegistration(dslContext, code);
@@ -59,7 +60,7 @@ public class CouponService {
   private CouponReadRepository.CouponUsageData fetchCouponUsageByCode(UUID userId, String code, String countryCode) {
     var optionalCouponUsage = couponReadRepository.findCouponUsageByCode(code, userId);
     if(optionalCouponUsage.isEmpty()) {
-      throw new BadRequestException(String.format("Not found coupon code: %s", code));       //todo replace with NotFoundException
+      throw new ResourceNotFoundException(String.format("Not found coupon code: %s", code));
     }
 
     couponValidateService.validateCouponUsage(optionalCouponUsage.get(), code, countryCode);

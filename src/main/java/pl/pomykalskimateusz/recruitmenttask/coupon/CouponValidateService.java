@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import pl.pomykalskimateusz.recruitmenttask.exception.BadRequestException;
+import pl.pomykalskimateusz.recruitmenttask.exception.ResourceNotFoundException;
 import pl.pomykalskimateusz.recruitmenttask.model.CreateCouponBody;
 
 import java.util.Arrays;
@@ -29,7 +30,7 @@ public class CouponValidateService {
 
   public void validateCouponUsage(CouponReadRepository.CouponUsageData couponUsage, String code, String countryCode) {
     if(!countryCode.equals(couponUsage.country())) {
-      throw new BadRequestException(String.format("Not found coupon code: %s for country: %s", code, countryCode));
+      throw new ResourceNotFoundException(String.format("Not found coupon code: %s for country: %s", code, countryCode));
     }
     if(couponUsage.usageLimit() == couponUsage.totalUsage()) {
       throw new BadRequestException(String.format("Code not available. Usage limit exceeded for code: %s", code));       //todo replace with NotFoundException
