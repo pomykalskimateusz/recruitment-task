@@ -42,7 +42,7 @@ public class CouponValidateService {
   }
 
   public void validateCouponUsage(CouponReadRepository.CouponUsageData couponUsage, String code, String countryCode) {
-    if(!countryCode.equals(couponUsage.country())) {
+    if(!countryCode.equalsIgnoreCase(couponUsage.country())) {
       throw new ResourceNotFoundException(String.format("Not found coupon code: %s for country: %s", code, countryCode));
     }
     if(couponUsage.usageLimit() == couponUsage.totalUsage()) {
