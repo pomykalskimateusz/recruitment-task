@@ -134,6 +134,33 @@ public class CouponServiceTest extends DatabaseContainer {
   }
 
   @Test
+  void shouldRegisterCouponByDifferentUsers() {
+    // GIVEN register coupon parameters and existing coupon
+    var userId1 = UUID.randomUUID();
+    var userId2 = UUID.randomUUID();
+    var ipAddress = "127.0.0.1";
+    var code = "test";
+    var countryCode = "PL";
+    var createCouponBody = new CreateCouponBody()
+      .code(code)
+      .countryCode(countryCode)
+      .usageLimit(10);
+
+    when(localizationService.getCountryCodeByIp(ipAddress)).thenReturn(Optional.of(countryCode));
+    couponService.createCoupon(createCouponBody);
+
+    // WHEN registering coupon by two different users
+    couponService.registerCoupon(userId1, code, ipAddress);
+    couponService.registerCoupon(userId2, code, ipAddress);
+
+    // THEN coupon should be registered and current usage of coupon should be 2
+    var coupons = couponService.fetchCoupons();
+
+    assertEquals(1, coupons.size());
+    assertEquals(2, coupons.getFirst().getCurrentUsage());
+  }
+
+  @Test
   void shouldThrowExceptionWhenUsageLimitExceededDuringRegistration() {
     // GIVEN existing coupon along with registered one
     var userId1 = UUID.randomUUID();
@@ -175,7 +202,7 @@ public class CouponServiceTest extends DatabaseContainer {
   }
 
   @Test
-  void shouldThrowExceptionForDifferentCountryCodeDuringRegistration() {
+  void shouldThrowExceptionWhenCouponCountryDiffersFromUserCountryCode() {
     // GIVEN existing coupon along with registered one
     var userId = UUID.randomUUID();
     var ipAddress = "127.0.0.1";
