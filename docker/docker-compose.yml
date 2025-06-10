@@ -11,7 +11,7 @@ services:
     volumes:
       - ./../:/application
     working_dir: /application
-    command: ./mvnw spring-boot:run -Dspring-boot.run.jvmArguments="-Djava.net.preferIPv4Stack=true"
+    command: ./mvnw spring-boot:run
     depends_on:
       - database
     ports:

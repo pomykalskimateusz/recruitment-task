@@ -21,7 +21,7 @@
 2. `./mvnw clean install`
 3. Run the `recruitment-task-app.jar` program passing correct env variables to the database
 ```
-   ~/.jdks/openjdk-21.0.1/bin/java -Djava.net.preferIPv4Stack=true -jar recruitment-task-app.jar \
+   ~/.jdks/openjdk-21.0.1/bin/java -jar recruitment-task-app.jar \
    --database_url=jdbc:postgresql://localhost:5432/recruitment-task \
    --database_username=postgres \
    --database_password=postgres
