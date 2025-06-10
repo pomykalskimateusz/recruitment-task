@@ -46,10 +46,10 @@ public class CouponValidateService {
       throw new ResourceNotFoundException(String.format("Not found coupon code: %s for country: %s", code, countryCode));
     }
     if(couponUsage.usageLimit() == couponUsage.totalUsage()) {
-      throw new BadRequestException(String.format("Code not available. Usage limit exceeded for code: %s", code));       //todo replace with NotFoundException
+      throw new BadRequestException(String.format("Code not available. Usage limit exceeded for code: %s", code));
     }
     if(couponUsage.userUsage() > 0) {
-      throw new BadRequestException(String.format("User usage limit exceeded for code: %s and country: %s", code, countryCode));       //todo replace with NotFoundException
+      throw new BadRequestException(String.format("User usage limit exceeded for code: %s and country: %s", code, countryCode));
     }
   }
 
