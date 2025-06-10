@@ -7,10 +7,8 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class JooqConf {
-
     @Bean
     public DefaultConfigurationCustomizer configurationCustomizerTest() {
-        return configuration -> configuration.settings()
-                .withRenderNameCase(RenderNameCase.LOWER);
+        return configuration -> configuration.settings().withRenderNameCase(RenderNameCase.LOWER);
     }
 }
