@@ -20,6 +20,9 @@ public class CouponValidateService {
   static Set<String> ISO_COUNTRIES = Arrays.stream(Locale.getISOCountries()).collect(Collectors.toSet());
 
   public void validateCreateCoupon(CreateCouponBody createCouponBody) {
+    if(isCodeNotValid(createCouponBody.getCode())) {
+      throw new BadRequestException("Invalid code: cannot be empty/null");
+    }
     if(isCountryCodeNotValid(createCouponBody.getCountryCode())) {
       throw new BadRequestException(String.format("Invalid country code: %s", createCouponBody.getCountryCode()));
     }
@@ -40,11 +43,19 @@ public class CouponValidateService {
     }
   }
 
-  private boolean isCountryCodeNotValid(String countryCode) {
-    return !ISO_COUNTRIES.contains(countryCode);
+  private boolean isCodeNotValid(String code) {
+    return isEmptyOrNull(code);
   }
 
-  private boolean isUsageLimitNotValid(int usageLimit) {
-    return usageLimit <= 0;
+  private boolean isCountryCodeNotValid(String countryCode) {
+    return isEmptyOrNull(countryCode) || !ISO_COUNTRIES.contains(countryCode.toUpperCase());
+  }
+
+  private boolean isUsageLimitNotValid(Integer usageLimit) {
+    return usageLimit == null || usageLimit <= 0;
+  }
+
+  private boolean isEmptyOrNull(String value) {
+    return value == null || value.isEmpty();
   }
 }

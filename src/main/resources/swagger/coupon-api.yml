@@ -37,6 +37,10 @@ paths:
                   type: string
                   minLength: 1
                   maxLength: 2
+              required:
+                - code
+                - usageLimit
+                - countryCode
       responses:
         '200':
           description: Created coupon response
