@@ -46,9 +46,9 @@ public class CouponController implements CouponsApi {
     if (attributes == null) throw new BadRequestException("Incorrect headers, missing request attributes.");
     HttpServletRequest request = attributes.getRequest();
 
-    String xfHeader = request.getHeader("X-Forwarded-For");
-    if (xfHeader != null && !xfHeader.isBlank()) {
-      return xfHeader.split(",")[0].trim();
+    String ipAddressHeader = request.getHeader("X-Forwarded-For");
+    if (ipAddressHeader != null && !ipAddressHeader.isBlank()) {
+      return ipAddressHeader.split(",")[0].trim();
     }
     return request.getRemoteAddr();
   }
