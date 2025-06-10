@@ -191,7 +191,7 @@ public class CouponServiceTest extends DatabaseContainer {
     var createCouponBody = new CreateCouponBody()
       .code(code)
       .countryCode(countryCode)
-      .usageLimit(1);
+      .usageLimit(2);
 
     when(localizationService.getCountryCodeByIp(ipAddress)).thenReturn(Optional.of(countryCode));
     couponService.createCoupon(createCouponBody);
